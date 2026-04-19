@@ -11,6 +11,12 @@ if (!isset($_SESSION['user_id'])) {
 // Cek apakah mode Edit (terdapat ID di URL)
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $is_edit = $id > 0;
+
+if (!$is_edit && $_SESSION['role'] !== 'admin') {
+    header("Location: users.php");
+    exit;
+}
+
 $success = false;
 $pesan_sukses = "";
 

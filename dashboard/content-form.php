@@ -22,27 +22,37 @@ if (!$data) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $final_value = "";
 
-    if ($data['tipe'] === 'gambar') {
-        $source_type = $_POST['source_type']; // 'link' atau 'file'
+    if ($source_type === 'file' && isset($_FILES['image_file']) && $_FILES['image_file']['error'] == 0) {
 
-        if ($source_type === 'file' && isset($_FILES['image_file']) && $_FILES['image_file']['error'] == 0) {
-            $target_dir = "../assets/img/";
-            if (!is_dir($target_dir))
-                mkdir($target_dir, 0755, true);
+        $allowed_mime_types = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+        $file_mime_type = mime_content_type($_FILES['image_file']['tmp_name']);
 
-            // Nama file tetap berdasarkan id_key agar menimpa file lama
-            $ext = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
-            $filename = $id_key . "." . $ext;
-            $target_file = $target_dir . $filename;
+        if (!in_array($file_mime_type, $allowed_mime_types)) {
+            echo "<script>alert('Gagal: File yang diupload harus berformat gambar (JPG, PNG, GIF, WEBP)!'); window.history.back();</script>";
+            exit;
+        }
 
-            if (move_uploaded_file($_FILES['image_file']['tmp_name'], $target_file)) {
-                $final_value = "assets/img/" . $filename; // Simpan path relatif ke DB
-            } else {
-                $final_value = $_POST['current_isi']; // Fallback jika gagal
-            }
+        $target_dir = "../assets/img/";
+        if (!is_dir($target_dir))
+            mkdir($target_dir, 0755, true);
+
+        // Nama file tetap berdasarkan id_key agar menimpa file lama
+        $ext = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
+
+        // Opsional: Validasi ekstensi tambahan untuk keamanan ekstra
+        $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!in_array(strtolower($ext), $allowed_ext)) {
+            echo "<script>alert('Ekstensi file tidak valid!'); window.history.back();</script>";
+            exit;
+        }
+
+        $filename = $id_key . "." . $ext;
+        $target_file = $target_dir . $filename;
+
+        if (move_uploaded_file($_FILES['image_file']['tmp_name'], $target_file)) {
+            $final_value = "assets/img/" . $filename; // Simpan path relatif ke DB
         } else {
-            // Jika pilih link
-            $final_value = $conn->real_escape_string($_POST['content_link']);
+            $final_value = $_POST['current_isi']; // Fallback jika gagal
         }
     } else {
         // Untuk tipe teks atau textarea

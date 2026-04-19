@@ -22,8 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['nama'] = $row['nama'];
         $_SESSION['username'] = $row['username'];
+        $_SESSION['role'] = $row['role'];
 
-        $login_success = true; // Trigger modal
+        $login_success = true;
     } else {
         $error_msg = 'Username/Email atau password salah!';
     }
