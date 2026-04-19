@@ -109,7 +109,9 @@ $result_rsvp = $conn->query($query_rsvp);
 <body class="antialiased overflow-hidden" id="body">
 
     <audio id="bg-music" loop>
-        <source src="https://upload.wikimedia.org/wikipedia/commons/2/20/Canon_in_D_Major.ogg" type="audio/ogg">
+        <source
+            src="<?= htmlspecialchars($konten['l_musik'] ?? 'https://upload.wikimedia.org/wikipedia/commons/2/20/Canon_in_D_Major.ogg') ?>"
+            type="audio/mpeg">
     </audio>
 
     <section id="cover-page"

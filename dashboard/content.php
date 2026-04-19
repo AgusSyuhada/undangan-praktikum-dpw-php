@@ -107,11 +107,17 @@ while ($row = $result->fetch_assoc()) {
             filtered.forEach(item => {
                 let isiDisplay = item.isi;
                 if (item.tipe === 'gambar') {
-                    // Cek apakah isi adalah path lokal atau URL luar
                     const imgSrc = item.isi.includes('http') ? item.isi : `../${item.isi}`;
                     isiDisplay = `
                         <div class="flex items-center gap-4">
                             <img src="${imgSrc}" class="h-12 w-12 object-cover rounded border bg-gray-100">
+                            <span class="text-xs text-gray-400 truncate max-w-[200px]">${item.isi}</span>
+                        </div>`;
+                } else if (item.tipe === 'audio') {
+                    const audioSrc = item.isi.includes('http') ? item.isi : `../${item.isi}`;
+                    isiDisplay = `
+                        <div class="flex flex-col gap-2">
+                            <audio controls class="h-8 w-48"><source src="${audioSrc}"></audio>
                             <span class="text-xs text-gray-400 truncate max-w-[200px]">${item.isi}</span>
                         </div>`;
                 }
