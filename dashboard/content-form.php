@@ -33,15 +33,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $target_dir = "../assets/img/";
                 $db_path = "assets/img/";
             } else { // audio
-                $allowed_mime = ['audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp3'];
+                $allowed_mime = [
+                    'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp3', 
+                    'audio/x-m4a', 'audio/mp4', 'audio/x-wav', 'video/mp4', 'application/octet-stream'
+                ];
                 $allowed_ext = ['mp3', 'ogg', 'wav', 'm4a'];
                 $target_dir = "../assets/audio/";
                 $db_path = "assets/audio/";
             }
 
             $file_mime_type = mime_content_type($_FILES['file_upload']['tmp_name']);
-            if (!in_array($file_mime_type, $allowed_mime)) {
-                echo "<script>alert('Gagal: Tipe file tidak diizinkan oleh sistem server!'); window.history.back();</script>";
+            $ext = strtolower(pathinfo($_FILES['file_upload']['name'], PATHINFO_EXTENSION));
+
+            if (!in_array($file_mime_type, $allowed_mime) && !in_array($ext, $allowed_ext)) {
+                echo "<script>alert('Gagal: Tipe file tidak diizinkan oleh sistem server! (MIME yang terdeteksi: " . $file_mime_type . ")'); window.history.back();</script>";
                 exit;
             }
 
@@ -193,16 +198,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 const file = e.target.files[0];
                 if (!file) return;
 
-                const isAudio = "<?= $data['tipe'] === 'audio' ?>";
+                const isAudio = <?= $data['tipe'] === 'audio' ? 'true' : 'false' ?>;
                 const imgTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
-                const audioTypes = ['audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp3', 'audio/x-m4a'];
 
                 let isValid = false;
-                // Validasi Client Side
-                if (isAudio && (audioTypes.some(t => file.type.includes(t)) || file.name.endsWith('.mp3'))) {
-                    isValid = true;
-                } else if (!isAudio && imgTypes.includes(file.type)) {
-                    isValid = true;
+                
+                if (isAudio) {
+                    const validExt = ['.mp3', '.wav', '.ogg', '.m4a'];
+                    if (file.type.startsWith('audio/') || validExt.some(ext => file.name.toLowerCase().endsWith(ext))) {
+                        isValid = true;
+                    }
+                } else {
+                    if (imgTypes.includes(file.type)) {
+                        isValid = true;
+                    }
                 }
 
                 if (!isValid) {
